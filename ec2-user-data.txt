@@ -1,0 +1,51 @@
+sudo su root
+#!/bin/bash
+yum update -y
+sudo yum install python3 -y
+sudo yum install java-1.8.0-amazon-corretto.x86_64 
+yum install nmap-ncat -y
+yum install git -y
+yum erase awscli -y
+yum install jq -y
+yum install maven -y
+sudo yum -y install python-pip
+
+#Install Python & dependencies
+sudo yum install python3 -y
+cd /home/ec2-user
+wget https://bootstrap.pypa.io/get-pip.py
+su -c "python3 get-pip.py --user" -s /bin/sh ec2-user
+su -c "/home/ec2-user/.local/bin/pip3 install boto3 --user" -s /bin/sh ec2-user
+su -c "/home/ec2-user/.local/bin/pip3 install awscli --user" -s /bin/sh ec2-user
+
+#Install kafka library
+cd /home/ec2-user
+mkdir -p kafka
+cd kafka
+sudo yum install java-1.8.0
+wget https://archive.apache.org/dist/kafka/2.2.1/kafka_2.12-2.2.1.tgz
+tar -xzf kafka_2.12-2.2.1.tgz
+
+#Install IAM Auth libraries
+cd  /home/ec2-user/kafka/libs
+wget https://github.com/aws/aws-msk-iam-auth/releases/download/1.1.0/aws-msk-iam-auth-1.1.0-all.jar
+cd /home/ec2-user  
+
+sudo -c "aws s3 cp s3://aws-blogs-artifacts-public/artifacts/BDB-1452/initial_insert.sql /home/ec2-user/" -l ec2-user
+su -c "aws s3 cp s3://aws-blogs-artifacts-public/artifacts/BDB-1452/insert_data_with_new_column.sql /home/ec2-user/" -l ec2-user
+su -c "aws s3 cp s3://aws-blogs-artifacts-public/artifacts/BDB-1452/create_table.sql /home/ec2-user/" -l ec2-user
+su -c "aws s3 cp s3://aws-blogs-artifacts-public/artifacts/BDB-1452/alter_table.sql /home/ec2-user/" -l ec2-user
+
+# Install AWS CLI 2 - access with aws2
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+ls -l /usr/local/bin/aws
+aws --version
+
+#Install Mysql Library 
+sudo su -
+dnf -y localinstall https://dev.mysql.com/get/mysql80-community-release-el9-4.noarch.rpm
+dnf -y install mysql mysql-community-client
+dnf install mysql-community-server
